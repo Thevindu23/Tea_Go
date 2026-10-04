@@ -44,4 +44,4 @@ node --check teago/src/main/resources/static/js/dashboard-factory.js
 
 The test suite uses an isolated in-memory H2 database. The local development database is configured through `TEAGO_DB_URL`, `TEAGO_DB_USERNAME`, and `TEAGO_DB_PASSWORD`; credentials are not committed.
 
-Only land owner and factory owner accounts are enabled. Supervisor remains reserved until assignment data and a dedicated dashboard are implemented.
+

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TeaGo — Land Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #3d6b4f;
+  --tea-light: #5a8c68;
+  --tea-light2: #5a8c68;
+  --green-pale: #e8f4ed;
+  --gold: #c8a84b;
+  --gold-pale: #fef7e6;
+  --cream: #f5f0e8;
+  --cream-mid: #ede7dc;
+  --cream-dark: #e8dfd0;
+  --text: #1a2e24;
+  --muted: #5a6b61;
+  --white: #fff;
+  --danger: #d64045;
+  --warning: #e07b39;
+  --sidebar: 255px;
+  --tea-dark: #264436;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+
+
+.app{display:flex;height:100vh;overflow:hidden;}
+
+
+.sidebar{
+  width:var(--sidebar);min-width:var(--sidebar);
+  background:var(--tea-dark);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+.sb-top{
+  padding:1.8rem 1.4rem 1.4rem;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:1.5rem;}
+.sb-logo svg{width:32px;height:32px;}
+.sb-logo .brand{font-family:'Playfair Display',serif;font-size:1.45rem;color:#fff;letter-spacing:-0.3px;}
+.sb-logo .sub{font-size:0.65rem;color:rgba(255,255,255,0.45);letter-spacing:0.1em;text-transform:uppercase;margin-top:-2px;}
+
+.profile-card{
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:16px;padding:1rem 1.1rem;
+  display:flex;align-items:center;gap:0.8rem;
+}
+.avatar{
+  width:42px;height:42px;border-radius:50%;
+  background:var(--gold);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:1rem;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+.profile-card .pname{color:#fff;font-size:0.9rem;font-weight:600;line-height:1.2;}
+.profile-card .pid{color:rgba(255,255,255,0.5);font-size:0.72rem;margin-top:1px;}
+.lbl-chip{
+  margin-left:auto;background:rgba(201,147,58,0.3);
+  color:#f0c478;font-size:0.65rem;font-weight:700;
+  padding:0.2rem 0.55rem;border-radius:50px;letter-spacing:0.04em;
+  flex-shrink:0;
+}
+
+.sb-section{padding:1rem 1.4rem 0.3rem;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);}
+.nav-item{
+  display:flex;align-items:center;gap:0.7rem;
+  padding:0.68rem 1rem;margin:0.1rem 0.7rem;
+  border-radius:11px;cursor:pointer;
+  color:rgba(255,255,255,0.55);font-size:0.875rem;font-weight:500;
+  transition:all 0.18s;position:relative;
+}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9);}
+.nav-item.active{background:rgba(255,255,255,0.14);color:#fff;}
+.nav-item.active::before{
+  content:'';position:absolute;left:-0.7rem;top:22%;bottom:22%;
+  width:3px;background:var(--gold);border-radius:2px;
+}
+.nav-ico{font-size:1rem;width:20px;text-align:center;}
+.nb{
+  margin-left:auto;background:var(--danger);color:#fff;
+  font-size:0.62rem;font-weight:700;padding:0.12rem 0.42rem;
+  border-radius:50px;
+}
+
+.sb-footer{
+  margin-top:auto;padding:1rem 0.7rem;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+.logout{
+  display:flex;align-items:center;gap:0.7rem;
+  padding:0.68rem 1rem;border-radius:11px;cursor:pointer;
+  color:rgba(255,255,255,0.4);font-size:0.875rem;
+  transition:all 0.18s;
+}
+.logout:hover{background:rgba(201,64,64,0.15);color:#f08080;}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;background:var(--cream);}
+
+.topbar{
+  background:var(--white);
+  border-bottom:1px solid var(--cream-dark);
+  padding:0.95rem 2rem;
+  display:flex;align-items:center;gap:1.2rem;
+  position:sticky;top:0;z-index:40;
+  backdrop-filter:saturate(1.05) blur(2px);
+}
+.tb-title{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--tea-dark);flex:1;}
+.tb-right{display:flex;align-items:center;gap:0.7rem;}
+.chip{
+  background:var(--cream);border:1px solid var(--cream-dark);
+  padding:0.4rem 0.9rem;border-radius:9px;font-size:0.8rem;color:var(--muted);
+}
+.ib{
+  width:36px;height:36px;border-radius:9px;
+  border:1px solid var(--cream-dark);background:var(--cream);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:0.95rem;transition:all 0.15s;position:relative;
+}
+.ib:hover{background:var(--cream-dark);}
+.ndot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--danger);border-radius:50%;border:1.5px solid var(--white);}
+
+.content{padding:1.8rem 2rem;flex:1;max-width:1500px;width:100%;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;animation:fadeUp 0.28s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+
+.ph{margin-bottom:1.8rem;}
+.ph h2{font-family:'Playfair Display',serif;font-size:1.75rem;color:var(--tea-dark);}
+.ph p{color:var(--muted);font-size:0.88rem;margin-top:0.3rem;line-height:1.55;}
+
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.8rem;}
+.sc{
+  background:var(--white);border-radius:16px;padding:1.3rem 1.2rem;
+  border:1px solid var(--cream-dark);transition:transform 0.18s,box-shadow 0.18s,border-color 0.18s;
+}
+.sc:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(38,68,54,0.09);border-color:#d8cebc;}
+.sc .ico{font-size:1.3rem;margin-bottom:0.6rem;}
+.sc .lbl{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:0.35rem;font-weight:600;}
+.sc .val{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--tea-dark);line-height:1;}
+.sc .sub{font-size:0.76rem;color:var(--muted);margin-top:0.4rem;line-height:1.35;}
+.sc.dark{background:var(--tea-dark);}
+.sc.dark .lbl,.sc.dark .sub{color:rgba(255,255,255,0.5);}
+.sc.dark .val{color:#fff;}
+.sc.gold{background:var(--gold);}
+.sc.gold .lbl,.sc.gold .sub{color:rgba(255,255,255,0.7);}
+.sc.gold .val{color:#fff;}
+
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-bottom:1.4rem;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.4rem;margin-bottom:1.4rem;}
+
+.card{background:var(--white);border-radius:16px;padding:1.4rem;border:1px solid var(--cream-dark);box-shadow:0 2px 8px rgba(38,68,54,0.04);}
+.ct{
+  font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--tea-dark);
+  margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;
+}
+.ct small{font-family:'DM Sans',sans-serif;font-size:0.75rem;color:var(--muted);font-weight:500;}
+
+
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:0.845rem;}
+th{text-align:left;padding:0.62rem 0.9rem;color:var(--muted);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.07em;border-bottom:2px solid var(--cream-mid);font-weight:700;}
+td{padding:0.74rem 0.9rem;border-bottom:1px solid var(--cream);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:rgba(61,107,79,0.012);}
+tr:hover td{background:rgba(61,107,79,0.025);}
+
+
+.b{display:inline-flex;align-items:center;padding:0.22rem 0.65rem;border-radius:50px;font-size:0.71rem;font-weight:600;}
+.b.g{background:#e8f4ed;color:#2d8a55;}
+.b.y{background:#fef7e6;color:#b87c1a;}
+.b.r{background:#fde8e8;color:#b83232;}
+.b.bl{background:#e8f0fe;color:#2455b8;}
+
+
+.fg{margin-bottom:1rem;}
+.fgg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.fg.full{grid-column:1/-1;}
+.fg label{display:block;font-size:0.81rem;font-weight:500;color:var(--text);margin-bottom:0.38rem;}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:0.72rem 0.95rem;
+  border:1.5px solid var(--cream-dark);border-radius:11px;
+  font-family:'DM Sans',sans-serif;font-size:0.88rem;
+  background:var(--white);color:var(--text);outline:none;
+  transition:border-color 0.18s,box-shadow 0.18s;
+}
+.fg input::placeholder,.fg textarea::placeholder{color:#8a978f;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{
+  border-color:var(--tea-dark);box-shadow:0 0 0 3px rgba(61,107,79,0.1);
+}
+.fg textarea{resize:vertical;min-height:85px;}
+.fg input[readonly]{background:#e8f4ed;color:var(--tea-dark);font-weight:700;}
+
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:0.68rem 1.4rem;border-radius:11px;border:none;font-family:'DM Sans',sans-serif;font-size:0.87rem;font-weight:600;cursor:pointer;transition:all 0.18s;min-height:38px;}
+.btn-p{background:var(--tea-dark);color:#fff;}
+.btn-p:hover{background:var(--green);}
+.btn-o{background:transparent;color:var(--tea-dark);border:1.5px solid var(--tea-dark);}
+.btn-o:hover{background:var(--tea-dark);color:#fff;}
+.btn-g{background:var(--gold);color:#fff;}
+.btn-g:hover{background:#b8941f;}
+.btn-sm{padding:0.38rem 0.85rem;font-size:0.78rem;border-radius:8px;}
+
+
+.mo{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+.mo.on{display:flex;}
+.mbox{background:var(--white);border-radius:20px;padding:2rem;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;animation:fadeUp 0.25s ease;}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem;}
+.mhead h3{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--tea-dark);}
+.mclose{background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--muted);}
+
+
+.bchart{display:flex;align-items:flex-end;gap:5px;height:110px;padding-top:6px;}
+.bc{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.bar{border-radius:6px 6px 0 0;background:var(--green-light);width:100%;transition:height 0.6s ease;}
+.bar.hi{background:var(--tea-dark);}
+.blbl{font-size:0.63rem;color:var(--muted);}
+
+
+.pb{height:7px;background:var(--cream-mid);border-radius:50px;overflow:hidden;margin-top:4px;}
+.pf{height:100%;border-radius:50px;background:var(--green);}
+.pf.gold{background:var(--gold);}
+.pf.red{background:var(--danger);}
+
+
+.ai{display:flex;gap:0.9rem;padding:0.72rem 0;border-bottom:1px solid var(--cream);align-items:flex-start;}
+.ai:last-child{border-bottom:none;}
+.adot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
+.adot.g{background:#e8f4ed;}
+.adot.y{background:#fef7e6;}
+.adot.b{background:#e8f0fe;}
+.at .am{font-size:0.86rem;color:var(--text);line-height:1.4;}
+.at .ti{font-size:0.74rem;color:var(--muted);margin-top:2px;}
+
+
+#toast{display:none;position:fixed;bottom:2rem;right:2rem;z-index:500;background:var(--tea-dark);color:#fff;padding:0.95rem 1.4rem;border-radius:13px;font-size:0.88rem;box-shadow:0 8px 24px rgba(0,0,0,0.18);animation:fadeUp 0.25s ease;max-width:300px;}
+
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .g2,.g3{grid-template-columns:1fr;}
+  .fgg{grid-template-columns:1fr;}
+  .content{padding:1.2rem;}
+  .topbar{padding:0.85rem 1rem;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+
+<aside class="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <svg viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="16" fill="rgba(255,255,255,0.15)"/>
+        <path d="M9 20c0-5.5 3.5-9 7-11 3.5 2 7 5.5 7 11a7 7 0 01-14 0z" fill="rgba(255,255,255,0.3)"/>
+        <path d="M16 9c0 3.5-2.5 6-2.5 11" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M16 9c1.8 1.8 4.2 2.8 4.2 7" stroke="#c9933a" stroke-width="1.1" stroke-linecap="round"/>
+      </svg>
+      <div><div class="brand">TeaGo</div><div class="sub">Land Owner Portal</div></div>
+    </div>
+    <div class="profile-card">
+      <div class="avatar" id="prof-av">??</div>
+      <div>
+        <div class="pname" id="prof-name">Loading…</div>
+        <div class="pid"   id="prof-id">ID: — · —</div>
+      </div>
+      <div class="lbl-chip">OWNER</div>
+    </div>
+  </div>
+
+  <div class="sb-section">Overview</div>
+  <div class="nav-item active" onclick="nav('dash',this)"><span class="nav-ico">🏡</span> My Dashboard</div>
+  <div class="nav-item" onclick="nav('deliveries',this)"><span class="nav-ico">🍃</span> Tea Deliveries</div>
+  <div class="nav-item" onclick="nav('payments',this)"><span class="nav-ico">💰</span> My Payments</div>
+
+  <div class="sb-section">Requests</div>
+  <div class="nav-item" onclick="nav('fertilizer',this)"><span class="nav-ico">🌿</span> Fertilizer</div>
+  <div class="nav-item" onclick="nav('loans',this)"><span class="nav-ico">📋</span> Loans & Advances</div>
+  <div class="nav-item" onclick="nav('cheques',this)"><span class="nav-ico">💳</span> My Cheques</div>
+
+  <div class="sb-section">My Farm</div>
+  <div class="nav-item" onclick="nav('factories',this)"><span class="nav-ico">🏭</span> My Factories</div>
+  <div class="nav-item" onclick="nav('employees',this)"><span class="nav-ico">👷</span> My Employees</div>
+  <div class="nav-item" onclick="nav('reports',this)"><span class="nav-ico">📊</span> Reports</div>
+  <div class="nav-item" id="nav-complaints" onclick="nav('complaints',this)"><span class="nav-ico">📣</span> Complaints <div class="nb" id="nb-comp">1</div></div>
+
+  <div class="sb-footer">
+    <div class="logout" onclick="signOut()">🚪 &nbsp;Sign Out</div>
+  </div>
+</aside>
+
+
+<main class="main">
+  <div class="topbar">
+    <div class="tb-title" id="tb-title">My Dashboard</div>
+    <div class="tb-right">
+      <div class="chip" id="date-chip"></div>
+      <div class="ib" onclick="nav('complaints',document.getElementById('nav-complaints'))">🔔<div class="ndot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page active" id="p-dash">
+      <div class="ph">
+        <h2>Good morning, <span id="greeting-name">there</span> 🌿</h2>
+        <p>Your tea farm overview for <span id="month-lbl">March 2025</span></p>
+      </div>
+      <div class="stats">
+        <div class="sc"><div class="ico">🍃</div><div class="lbl">Delivered This Month</div><div class="val" id="dash-delivered-kg">0</div><div class="sub" id="dash-delivered-sub">kg of tea leaves</div></div>
+        <div class="sc dark"><div class="ico">💰</div><div class="lbl">Net Payable</div><div class="val" id="dash-net-payable">Rs 0</div><div class="sub">After all deductions</div></div>
+        <div class="sc gold"><div class="ico">📋</div><div class="lbl">Loan Balance</div><div class="val" id="dash-loan-balance">Rs 0</div><div class="sub">Outstanding</div></div>
+        <div class="sc"><div class="ico">👷</div><div class="lbl">Active Workers</div><div class="val" id="dash-active-workers">0</div><div class="sub">This month</div></div>
+        <div class="sc"><div class="ico">🌿</div><div class="lbl">Fertilizer Used</div><div class="val" id="dash-fertilizer-used">0 kg</div><div class="sub" id="dash-fertilizer-sub">This month</div></div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="ct">Monthly Deliveries <small>Last 6 months</small></div>
+          <div class="bchart" id="del-chart"></div>
+        </div>
+        <div class="card">
+          <div class="ct">Recent Activity</div>
+          <div id="dash-recent-activity">
+            <div class="ai"><div class="adot b">⏳</div><div class="at"><div class="am">Loading recent activity...</div><div class="ti">Please wait</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="ct">This Month's Payment Breakdown</div>
+          <div style="display:flex;flex-direction:column;gap:0.9rem;">
+            <div><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:3px;"><span id="dash-breakdown-gross-label">Gross Income (0kg x Rs 0)</span><strong id="dash-breakdown-gross">Rs 0</strong></div><div class="pb"><div class="pf" id="dash-breakdown-gross-bar" style="width:100%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:3px;"><span>Loan Repayment</span><strong style="color:var(--danger)" id="dash-breakdown-loan">-Rs 0</strong></div><div class="pb"><div class="pf red" id="dash-breakdown-loan-bar" style="width:0%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:3px;"><span>Fertilizer Cost</span><strong style="color:var(--warning)" id="dash-breakdown-fertilizer">-Rs 0</strong></div><div class="pb"><div class="pf gold" id="dash-breakdown-fertilizer-bar" style="width:0%"></div></div></div>
+            <div style="border-top:2px solid var(--cream-mid);padding-top:0.8rem;display:flex;justify-content:space-between;font-weight:700;"><span>Net Payable</span><strong style="color:var(--tea-dark);font-size:1.05rem;" id="dash-breakdown-net">Rs 0</strong></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct">Quick Actions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+            <button class="btn btn-p" onclick="nav('deliveries',null)">🍃 View Deliveries</button>
+            <button class="btn btn-o" onclick="nav('loans',null);openM('m-loan')">📋 Apply for Loan</button>
+            <button class="btn btn-o" onclick="nav('fertilizer',null);openM('m-fert')">🌿 Request Fertilizer</button>
+            <button class="btn btn-g" onclick="nav('reports',null)">📊 Get Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="page" id="p-deliveries">
+      <div class="ph">
+        <h2>Tea Deliveries</h2>
+        <p>Your delivery records — managed by the factory on your behalf</p>
+      </div>
+      
+      <div style="background:#fef7e6;border:1px solid rgba(200,168,75,0.35);border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1.4rem;display:flex;align-items:center;gap:0.75rem;font-size:0.84rem;color:#7a5c10;">
+        <span style="font-size:1.1rem;">📋</span>
+        <span><strong>Read-only:</strong> Deliveries are recorded by the factory owner. Contact the factory if you notice any discrepancy.</span>
+      </div>
+      <div class="stats">
+        <div class="sc dark"><div class="lbl">This Month</div><div class="val" id="del-stat-month">—</div><div class="sub">Total delivered</div></div>
+        <div class="sc"><div class="lbl">This Week</div><div class="val" id="del-stat-week">—</div></div>
+        <div class="sc"><div class="lbl">Today</div><div class="val" id="del-stat-today">—</div></div>
+        <div class="sc gold"><div class="lbl">Rate / kg</div><div class="val" id="del-stat-rate">Rs 50</div><div class="sub">Current</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">
+          Delivery Records
+          <small>Recorded by factory</small>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Date</th><th>Weight (kg)</th><th>Rate/kg</th><th>Gross Amount</th><th>Deduction</th><th>Net Amount</th><th>Status</th></tr></thead>
+            <tbody id="del-tbody">
+              <tr><td>2025-03-01</td><td>120</td><td>Rs 50</td><td>Rs 6,000</td><td>Rs 0</td><td>Rs 6,000</td><td><span class="b g">✓ Recorded</span></td></tr>
+              <tr><td>2025-02-28</td><td>145</td><td>Rs 50</td><td>Rs 7,250</td><td>Rs 0</td><td>Rs 7,250</td><td><span class="b g">✓ Recorded</span></td></tr>
+              <tr><td>2025-02-27</td><td>98</td><td>Rs 50</td><td>Rs 4,900</td><td>Rs 0</td><td>Rs 4,900</td><td><span class="b g">✓ Recorded</span></td></tr>
+              <tr><td>2025-02-26</td><td>157</td><td>Rs 50</td><td>Rs 7,850</td><td>Rs 0</td><td>Rs 7,850</td><td><span class="b g">✓ Recorded</span></td></tr>
+              <tr><td>2025-02-25</td><td>110</td><td>Rs 50</td><td>Rs 5,500</td><td>Rs 0</td><td>Rs 5,500</td><td><span class="b g">✓ Recorded</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="p-payments">
+      <div class="ph"><h2>My Payments</h2><p>Track your income and deductions</p></div>
+      <div class="stats">
+        <div class="sc dark" id="stat-gross"><div class="lbl">Gross <span id="stat-month-lbl">Mar 2026</span></div><div class="val">Rs 0</div></div>
+        <div class="sc gold" id="stat-deductions"><div class="lbl">Deductions</div><div class="val">Rs 0</div></div>
+        <div class="sc" id="stat-net"><div class="lbl">Net Payable</div><div class="val">Rs 0</div></div>
+        <div class="sc"><div class="lbl">Previous Month</div><div class="val" id="stat-prev-month">Rs 0</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="ct">Payment History</div>
+          <div class="tw">
+            <table>
+              <thead><tr><th>Date</th><th>Land Owner</th><th>Weight (kg)</th><th>Rate/kg</th><th>Amount</th></tr></thead>
+              <tbody id="pay-history-tbody">
+                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem;">Loading payments…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="page" id="p-fertilizer">
+      <div class="ph"><h2>Fertilizer Requests</h2><p>Request fertilizer from the factory</p></div>
+      <div class="stats">
+        <div class="sc"><div class="lbl">This Month</div><div class="val" id="fert-stat-month">0 kg</div></div>
+        <div class="sc dark"><div class="lbl">Pending</div><div class="val" id="fert-stat-pending">0</div></div>
+        <div class="sc gold"><div class="lbl">Deducted</div><div class="val" id="fert-stat-deducted">Rs 0</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">My Requests <button class="btn btn-p btn-sm" onclick="openM('m-fert')">+ New Request</button></div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Date</th><th>Type</th><th>Qty (kg)</th><th>Unit Price</th><th>Total Cost</th><th>Status</th></tr></thead>
+            <tbody id="fert-tbody">
+          
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="page" id="p-loans">
+      <div class="ph"><h2>Loans & Advances</h2><p>Apply for advances and track repayments</p></div>
+      <div class="stats">
+        <div class="sc dark" id="loan-stat-outstanding"><div class="lbl">Outstanding</div><div class="val">Rs 0</div></div>
+        <div class="sc gold" id="loan-stat-monthly"><div class="lbl">Monthly Deduction</div><div class="val">Rs 0</div></div>
+        <div class="sc" id="loan-stat-total"><div class="lbl">Total Borrowed</div><div class="val">Rs 0</div></div>
+        <div class="sc" id="loan-stat-pending"><div class="lbl">Pending</div><div class="val">0</div><div class="sub">Awaiting approval</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">My Loan & Advance Applications <button class="btn btn-p btn-sm" onclick="openM('m-loan')">+ Apply</button></div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Reason</th><th>Status</th></tr></thead>
+            <tbody id="loan-tbody">
+              <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem;">Loading loans…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="page" id="p-cheques">
+      <div class="ph"><h2>My Cheques</h2><p>Track cheque delivery and verify receipt</p></div>
+      <div class="stats">
+        <div class="sc" id="cheq-stat-total"><div class="lbl">Total Issued</div><div class="val">0</div></div>
+        <div class="sc dark" id="cheq-stat-transit"><div class="lbl">In Transit</div><div class="val">0</div></div>
+        <div class="sc gold" id="cheq-stat-verify"><div class="lbl">To Verify</div><div class="val">0</div></div>
+        <div class="sc" id="cheq-stat-verified"><div class="lbl">Verified</div><div class="val">0</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">Cheque Records</div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Cheque No.</th><th>Loan Ref</th><th>Amount</th><th>Supervisor</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="cheq-tbody">
+              <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1rem;">⏳ Loading cheques...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="page" id="p-factories">
+      <div class="ph">
+        <h2>My Factories</h2>
+        <p>Register with tea factories and track your registration status</p>
+      </div>
+
+      
+      <div class="stats">
+        <div class="sc dark"><div class="lbl">Registered</div><div class="val" id="fac-count-active">—</div><div class="sub">Active factories</div></div>
+        <div class="sc gold"><div class="lbl">Pending</div><div class="val" id="fac-count-pending">—</div><div class="sub">Awaiting approval</div></div>
+        <div class="sc"><div class="lbl">Available</div><div class="val" id="fac-count-all">—</div><div class="sub">Factories to join</div></div>
+      </div>
+
+      <div class="g2">
+    
+        <div class="card">
+          <div class="ct">My Registrations</div>
+          <div id="my-factories-list">
+            <div style="text-align:center;color:var(--muted);padding:2rem;font-size:0.87rem;">
+              ⏳ Loading…
+            </div>
+          </div>
+        </div>
+
+        
+        <div class="card">
+          <div class="ct">Register with a Factory</div>
+          <div class="fg">
+            <label>Select Factory</label>
+            <select id="reg-factory-sel">
+              <option value="">Loading factories…</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Your Land Size for this Factory (acres)</label>
+            <input type="number" step="0.01" placeholder="e.g. 3.2" id="reg-factory-size">
+          </div>
+          
+          <div id="factory-preview" style="display:none;background:var(--cream);border:1px solid var(--cream-dark);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+            <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:0.5rem;">Factory Details</div>
+            <div style="font-weight:600;color:var(--tea-dark);font-size:0.95rem;" id="preview-name">—</div>
+            <div style="font-size:0.83rem;color:var(--muted);margin-top:3px;" id="preview-location">—</div>
+          </div>
+          <button class="btn btn-p" style="width:100%;" onclick="registerWithFactory()">🏭 Submit Registration</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ct">All Available Factories <small>Click a factory to register</small></div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>#</th><th>Factory Name</th><th>Location</th><th>Owner</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="all-factories-tb">
+              <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:1.5rem;">⏳ Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="page" id="p-employees">
+      <div class="ph"><h2>My Employees</h2><p>Manage farm workers and calculate salaries</p></div>
+      <div class="stats">
+        <div class="sc"><div class="lbl">Total Workers</div><div class="val" id="emp-stat-total">0</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">Employee Records <button class="btn btn-p btn-sm" onclick="openM('m-emp')">+ Add Employee</button></div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>NIC</th><th>Contact</th></tr></thead>
+            <tbody id="emp-tbody">
+              <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:1.5rem;">⏳ Loading employees...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+     
+      <div class="card" style="margin-top:1.8rem;">
+        <div class="ct">Monthly Wage Sheet <button class="btn btn-p btn-sm" onclick="openWageEntryModal()">💰 Add Wage</button></div>
+        <div style="margin-bottom:1rem;font-size:0.85rem;color:var(--muted);">
+          <label>Select Month:</label>
+          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+            <select id="wage-month" onchange="loadWageSheet()" style="padding:0.5rem;border:1px solid var(--cream-dark);border-radius:8px;">
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <input type="number" id="wage-year" min="2000" max="3000" value="2026" onchange="loadWageSheet()" style="padding:0.5rem;border:1px solid var(--cream-dark);border-radius:8px;width:80px;">
+          </div>
+        </div>
+        <div class="tw" style="overflow-x:auto;">
+          <table id="wage-sheet-table" style="min-width:1200px;font-size:0.8rem;">
+            <thead id="wage-sheet-head">
+              <tr><th style="min-width:120px;">Employee Name</th></tr>
+            </thead>
+            <tbody id="wage-sheet-body">
+              <tr><td colspan="32" style="text-align:center;padding:1.5rem;">⏳ Loading wage sheet...</td></tr>
+            </tbody>
+            <tfoot id="wage-sheet-foot">
+              <tr><th style="min-width:120px;">Total</th></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      
+      <div class="card" style="margin-top:1.8rem;">
+        <div class="ct">Monthly Tea Collection (kg) <button class="btn btn-p btn-sm" onclick="openTeaCollectionModal()">🍃 Add Collection</button></div>
+        <div style="margin-bottom:1rem;font-size:0.85rem;color:var(--muted);">
+          <label>Select Month:</label>
+          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+            <select id="tea-month" onchange="loadTeaCollectionSheet()" style="padding:0.5rem;border:1px solid var(--cream-dark);border-radius:8px;">
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <input type="number" id="tea-year" min="2000" max="3000" value="2026" onchange="loadTeaCollectionSheet()" style="padding:0.5rem;border:1px solid var(--cream-dark);border-radius:8px;width:80px;">
+          </div>
+        </div>
+        <div class="tw" style="overflow-x:auto;">
+          <table id="tea-sheet-table" style="min-width:1200px;font-size:0.8rem;">
+            <thead id="tea-sheet-head">
+              <tr><th style="min-width:120px;">Employee Name</th></tr>
+            </thead>
+            <tbody id="tea-sheet-body">
+              <tr><td colspan="32" style="text-align:center;padding:1.5rem;">⏳ Loading tea collection sheet...</td></tr>
+            </tbody>
+            <tfoot id="tea-sheet-foot">
+              <tr><th style="min-width:120px;">Total (kg)</th></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="p-reports">
+      <div class="ph"><h2>Reports and Statements</h2><p>Generate your real monthly bill and view past generated bills</p></div>
+      <div class="g2">
+        <div class="card">
+          <div class="ct">Monthly Bill</div>
+          <div class="fg"><label>Month</label>
+            <select id="bill-mon"></select>
+          </div>
+          <div class="fg"><label>Year</label><input type="number" id="bill-year" min="2000" max="3000"></div>
+          <button class="btn btn-p" onclick="genBill()">📄 Generate Bill</button>
+          <div id="bill-out" style="display:none;margin-top:1.2rem;">
+            <div style="background:var(--cream);border-radius:12px;padding:1.2rem;border:1px solid var(--cream-dark);">
+              <div style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:0.8rem;color:var(--tea-dark);">Monthly Bill — <span id="bill-mon-lbl">-</span></div>
+              <div style="display:flex;flex-direction:column;gap:0.45rem;font-size:0.86rem;">
+                <div style="display:flex;justify-content:space-between;"><span>Gross Earnings</span><strong id="bill-gross">Rs 0</strong></div>
+                <div style="display:flex;justify-content:space-between;color:var(--warning)"><span>Delivery Deductions</span><strong id="bill-delivery">Rs 0</strong></div>
+                <div style="display:flex;justify-content:space-between;color:var(--danger)"><span>Loan / Advance Deductions</span><strong id="bill-loan">Rs 0</strong></div>
+                <div style="display:flex;justify-content:space-between;color:var(--warning)"><span>Fertilizer Deductions</span><strong id="bill-fert">Rs 0</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Total Deductions</span><strong id="bill-deductions">Rs 0</strong></div>
+                <div style="border-top:1.5px solid var(--cream-dark);padding-top:0.5rem;display:flex;justify-content:space-between;font-weight:700;"><span>Net Payable</span><span id="bill-net" style="color:var(--tea-dark)">Rs 0</span></div>
+              </div>
+              <div style="margin-top:0.8rem;font-size:0.78rem;color:var(--muted);">Generated on: <span id="bill-generated-date">-</span></div>
+              <button class="btn btn-o btn-sm" style="margin-top:0.8rem;" onclick="exportOwnerMonthlyBillPDF()">⬇ Export PDF</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct">Income Statement</div>
+          <div class="fg"><label>Period</label>
+            <select id="inc-per"><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option></select>
+          </div>
+          <div class="fg"><label>Ending Month</label>
+            <select id="inc-end-month"></select>
+          </div>
+          <div class="fg"><label>Ending Year</label><input type="number" id="inc-end-year" min="2000" max="3000"></div>
+          <button class="btn btn-p" onclick="genIncomeStatement()">📊 Generate Income Statement</button>
+          <div id="inc-out" style="display:none;margin-top:1.2rem;">
+            <div style="background:var(--cream);border-radius:12px;padding:1.2rem;border:1px solid var(--cream-dark);">
+              <div id="inc-title" style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:0.8rem;color:var(--tea-dark);">Income Statement</div>
+              <div id="inc-months" style="display:flex;flex-direction:column;gap:0.4rem;font-size:0.86rem;"></div>
+              <div style="border-top:1.5px solid var(--cream-dark);padding-top:0.6rem;margin-top:0.6rem;display:flex;flex-direction:column;gap:0.35rem;font-size:0.84rem;">
+                <div style="display:flex;justify-content:space-between;"><span>Total Earnings</span><strong id="inc-total-earnings">Rs 0</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Total Deductions</span><strong id="inc-total-deductions">Rs 0</strong></div>
+                <div style="display:flex;justify-content:space-between;font-weight:700;"><span>Total Net Payable</span><strong id="inc-total-net" style="color:var(--tea-dark)">Rs 0</strong></div>
+              </div>
+              <div style="margin-top:0.8rem;font-size:0.78rem;color:var(--muted);">Generated on: <span id="inc-generated-date">-</span></div>
+              <button class="btn btn-o btn-sm" style="margin-top:0.8rem;" onclick="exportOwnerIncomeStatementPDF()">⬇ Export PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="page" id="p-complaints">
+      <div class="ph"><h2>Complaints</h2><p>Submit and track your complaints to the factory</p></div>
+      <div class="g2">
+        <div class="card">
+          <div class="ct">Submit a Complaint</div>
+          <div class="fg"><label>Factory Owner</label>
+            <select id="c-factory"><option value="">Loading your factories...</option></select>
+          </div>
+          <div class="fg"><label>Subject</label><input type="text" placeholder="Brief complaint subject" id="c-subj"></div>
+          <div class="fg"><label>Details</label><textarea placeholder="Describe your complaint…" id="c-text"></textarea></div>
+          <button class="btn btn-p" onclick="submitComp()">📣 Submit</button>
+        </div>
+        <div class="card">
+          <div class="ct">My Complaints</div>
+          <div style="margin-bottom:0.7rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);">Open</div>
+          <div id="comp-open-list">
+            <div style="text-align:center;color:var(--muted);padding:1rem;">⏳ Loading...</div>
+          </div>
+          <div style="margin:1rem 0 0.7rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);">Resolved</div>
+          <div id="comp-resolved-list">
+            <div style="text-align:center;color:var(--muted);padding:1rem;">⏳ Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+
+<div class="mo" id="m-loan">
+  <div class="mbox">
+    <div class="mhead"><h3>📋 Loans & Advances</h3><button class="mclose" onclick="closeM('m-loan')">✕</button></div>
+    <div class="fgg">
+      <div class="fg full"><label>Factory Owner</label>
+        <select id="l-factory"><option value="">Loading your factories...</option></select>
+      </div>
+      <div class="fg"><label>Request Type</label>
+        <select id="l-type">
+          <option value="LOAN">Loan</option>
+          <option value="ADVANCE">Advance</option>
+        </select>
+      </div>
+      <div class="fg"><label>Amount (Rs)</label><input type="number" placeholder="e.g. 15000" id="l-amt"></div>
+      <div class="fg"><label>Date Needed</label><input type="date" id="l-date"></div>
+      <div class="fg full"><label>Reason</label><textarea placeholder="Why do you need this?" id="l-reason"></textarea></div>
+    </div>
+    <div style="background:var(--cream);border-radius:10px;padding:0.85rem;margin-bottom:1rem;font-size:0.82rem;color:var(--muted);">⚠️ Repayment deducted from monthly payments. Max: Rs 50,000.</div>
+    <div style="display:flex;gap:0.7rem;justify-content:flex-end;">
+      <button class="btn btn-o" onclick="closeM('m-loan')">Cancel</button>
+      <button class="btn btn-p" onclick="saveLoan()">Submit Application</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="m-fert">
+  <div class="mbox">
+    <div class="mhead"><h3>🌿 Request Fertilizer</h3><button class="mclose" onclick="closeM('m-fert')">✕</button></div>
+    <div class="fgg">
+      <div class="fg full"><label>Factory Owner</label>
+        <select id="f-factory"><option value="">Loading your factories...</option></select>
+      </div>
+      <div class="fg"><label>Type</label>
+        <select id="f-type"><option>Urea</option><option>NPK</option><option>Organic Compost</option><option>Potassium Chloride</option></select>
+      </div>
+      <div class="fg"><label>Quantity (kg)</label><input type="number" placeholder="e.g. 50" id="f-qty"></div>
+      <div class="fg full"><label>Notes</label><textarea placeholder="Intended use…" id="f-notes"></textarea></div>
+    </div>
+    <div style="display:flex;gap:0.7rem;justify-content:flex-end;">
+      <button class="btn btn-o" onclick="closeM('m-fert')">Cancel</button>
+      <button class="btn btn-p" onclick="saveFert()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="m-emp">
+  <div class="mbox">
+    <div class="mhead"><h3>👷 Add Employee</h3><button class="mclose" onclick="closeM('m-emp')">✕</button></div>
+    <div class="fgg">
+      <div class="fg"><label>Full Name</label><input type="text" placeholder="Employee name" id="e-name"></div>
+      <div class="fg"><label>NIC</label><input type="text" placeholder="e.g. 901234567V" id="e-nic"></div>
+      <div class="fg"><label>Contact Phone</label><input type="text" placeholder="07X XXXXXXX" id="e-tel"></div>
+    </div>
+    <div style="display:flex;gap:0.7rem;justify-content:flex-end;margin-top:0.5rem;">
+      <button class="btn btn-o" onclick="closeM('m-emp')">Cancel</button>
+      <button class="btn btn-p" onclick="saveEmp()">Add Employee</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="m-tea-col">
+  <div class="mbox">
+    <div class="mhead"><h3>🍃 Record Daily Tea Collection</h3><button class="mclose" onclick="closeM('m-tea-col')">✕</button></div>
+    <div class="fgg">
+      <div class="fg full"><label>Select Employee</label>
+        <select id="tea-col-employee"><option value="">Loading employees...</option></select>
+      </div>
+      <div class="fg"><label>Collection Date</label><input type="date" id="tea-col-date"></div>
+      <div class="fg"><label>Quantity (kg)</label><input type="number" placeholder="e.g. 25.5" id="tea-col-qty" step="0.01"></div>
+      <div class="fg"><label>Quality</label>
+        <select id="tea-col-quality">
+          <option value="Green">Green</option>
+          <option value="Withered">Withered</option>
+          <option value="Good">Good</option>
+          <option value="Bruised">Bruised</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fg full"><label>Notes</label><textarea placeholder="Any remarks about the collection..." id="tea-col-notes"></textarea></div>
+    </div>
+    <div style="display:flex;gap:0.7rem;justify-content:flex-end;margin-top:0.5rem;">
+      <button class="btn btn-o" onclick="closeM('m-tea-col')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTeaCollection()">Record Collection</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="m-wage-sheet-nav">
+  <div class="mbox" style="max-width:500px;">
+    <div class="mhead"><h3>💰 Enter Daily Wage</h3><button class="mclose" onclick="closeM('m-wage-sheet-nav')">✕</button></div>
+    <div class="fgg">
+      <div class="fg full"><label>Employee Name</label>
+        <select id="wage-emp-select" onchange="updateDateForWage()"><option value="">Select employee...</option></select>
+      </div>
+      <div class="fg full"><label>Date</label>
+        <input type="date" id="wage-entry-date">
+      </div>
+      <div class="fg full"><label>Daily Wage Rate (Rs)</label>
+        <input type="text" id="wage-entry-rate" placeholder="Enter amount (e.g. 1500)" style="font-size:1.1rem;padding:0.9rem;border:2px solid var(--cream-dark);">
+      </div>
+    </div>
+    <div style="display:flex;gap:0.7rem;justify-content:flex-end;margin-top:1.5rem;">
+      <button class="btn btn-o" onclick="closeM('m-wage-sheet-nav')">Cancel</button>
+      <button class="btn btn-p" onclick="saveWageEntry(this)">Save Wage</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="m-tea-collection-nav">
+  <div class="mbox" style="max-width:500px;">
+    <div class="mhead"><h3>🍃 Enter Daily Tea Collection</h3><button class="mclose" onclick="closeM('m-tea-collection-nav')">✕</button></div>
+    <div class="fgg">
+      <div class="fg full"><label>Employee Name</label>
+        <select id="tea-emp-select"><option value="">Select employee...</option></select>
+      </div>
+      <div class="fg full"><label>Date</label>
+        <input type="date" id="tea-entry-date">
+      </div>
+      <div class="fg full"><label>Tea Collected (kg)</label>
+        <input type="text" id="tea-entry-qty" placeholder="Enter quantity (e.g. 25.5)" style="font-size:1.1rem;padding:0.9rem;border:2px solid var(--cream-dark);">
+      </div>
+      <div class="fg full"><label>Quality</label>
+        <select id="tea-entry-quality">
+          <option value="Green">Green</option>
+          <option value="Withered">Withered</option>
+          <option value="Good">Good</option>
+          <option value="Bruised">Bruised</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:0.7rem;justify-content:flex-end;margin-top:1.5rem;">
+      <button class="btn btn-o" onclick="closeM('m-tea-collection-nav')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTeaCollectionEntry(this)">Save Collection</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/dashboard-owner.js"></script>
+</body>
+</html>
